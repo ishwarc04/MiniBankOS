@@ -1,13 +1,13 @@
 package system;
 
 import java.util.HashMap;
-import kernel.LockManager;
-import java.util.concurrent.locks.ReentrantLock;
+import kernel.ReadWriteManager;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class BankDatabase{
 
     private HashMap<String, Account> accounts=new HashMap<>();
-    private LockManager lockManager=new LockManager();
+    private ReadWriteManager lockManager=new ReadWriteManager();
 
     public void createAccount(String name, double balance){
 
@@ -37,9 +37,15 @@ public class BankDatabase{
             System.out.println("Account not found.");
             return;
         }
+        ReentrantReadWriteLock lock= lockManager.getLock(name);
+        lock.readLock().lock();
 
-        System.out.println("Name :"+ name +"\n Balance = "+acc.getBalance());
-        return;
+        try{
+            System.out.println("Name :"+ name +"\n Balance = "+acc.getBalance());
+        }
+        finally{
+            lock.readLock().unlock();
+        }
     }
 
     public void transfer(String from, String to, double amount){
@@ -59,11 +65,11 @@ public class BankDatabase{
             System.out.println("Account not found.");
             return;
         }
-        ReentrantLock lock1=lockManager.getLock(from);
-        ReentrantLock lock2=lockManager.getLock(to);
+        ReentrantReadWriteLock lock1=lockManager.getLock(from);
+        ReentrantReadWriteLock lock2=lockManager.getLock(to);
 
-        lock1.lock();
-        lock2.lock();
+        lock1.writeLock().lock();
+        lock2.writeLock().lock();
 
         try{
             
@@ -78,8 +84,8 @@ public class BankDatabase{
             return;
         }
         finally{
-            lock1.unlock();
-            lock2.unlock();
+            lock1.writeLock().unlock();
+            lock2.writeLock().unlock();
         }
     }
 }

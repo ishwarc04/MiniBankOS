@@ -39,7 +39,7 @@ public class CommandParser{
             }
             try{
                 double amount=Double.parseDouble(tokens[3]);
-                tm.executeTransfer(tokens[1],tokens[2],amount);
+                tm.transfer(tokens[1],tokens[2],amount);
             }
             catch(NumberFormatException e){
                 System.out.println("Invalid amount.");
