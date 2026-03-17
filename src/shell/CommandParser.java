@@ -2,10 +2,13 @@ package shell;
 
 import system.BankDatabase;
 import kernel.TransactionManager;
+import kernel.scheduler.*;
 
 public class CommandParser{
+
+    private Scheduler scheduler=new Scheduler();
     private BankDatabase bank=new BankDatabase();
-    private TransactionManager tm=new TransactionManager(bank);
+    private TransactionManager tm=new TransactionManager(bank, scheduler);
 
 
     public void parse(String command){
