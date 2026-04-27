@@ -506,6 +506,35 @@ public class TransactionManager{
     }
 
     // =========================================================================
+    // DISK SCHEDULING
+    // =========================================================================
+
+    /**
+     * Change the disk scheduling algorithm at runtime.
+     * @param name  "FCFS", "SSTF", or "SCAN" (case-insensitive)
+     */
+    public void setDiskAlgorithm(String name) {
+        try {
+            DiskScheduler.Algorithm algo =
+                DiskScheduler.Algorithm.valueOf(name.toUpperCase());
+            DiskScheduler.getInstance().setAlgorithm(algo);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Unknown algorithm '" + name +
+                "'. Choose: FCFS | SSTF | SCAN");
+        }
+    }
+
+    /** Print cumulative disk scheduler statistics. */
+    public void printDiskStats() {
+        DiskScheduler.getInstance().printStats();
+    }
+
+    /** Reset disk scheduler statistics and head position. */
+    public void resetDiskStats() {
+        DiskScheduler.getInstance().resetStats();
+    }
+
+    // =========================================================================
     // DEADLOCK DEMO -- 3 REAL concurrent threads, real bank.transfer() calls
     // =========================================================================
     public void runDeadlockDemo(String acc1, String acc2, String acc3) {

@@ -199,6 +199,20 @@ public class CommandParser{
                 System.out.println("Usage: slow-mode on | slow-mode off");
             }
         }
+        else if(tokens[0].equalsIgnoreCase("disk-schedule")){
+            // disk-schedule <FCFS|SSTF|SCAN>
+            if(tokens.length != 2){
+                HelpPrinter.printUsage("disk-schedule");
+                return;
+            }
+            tm.setDiskAlgorithm(tokens[1]);
+        }
+        else if(tokens[0].equalsIgnoreCase("disk-stats")){
+            tm.printDiskStats();
+        }
+        else if(tokens[0].equalsIgnoreCase("disk-reset")){
+            tm.resetDiskStats();
+        }
         else{
             System.out.println(tokens[0]+" is not a valid command.");
             System.out.println("Run 'help' to see all commands.");

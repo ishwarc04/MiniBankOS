@@ -1,5 +1,6 @@
 username,password,role,canTransfer,state
 root,root123,ADMIN,false,COMMIT
 bob,bob123,USER,true,COMMIT
+proofuser,proof123,USER,true,COMMIT
 alice,alice123,USER,true,COMMIT
 charlie,charlie123,USER,true,COMMIT
