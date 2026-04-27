@@ -2,43 +2,24 @@ package kernel;
 
 import java.util.*;
 
-/**
- * Banker's Algorithm -- Deadlock Avoidance
- *
- * Resource = bank account (each account is a lockable resource)
- * Process = transfer transaction (needs 2 accounts: from + to)
- * Before every transfer: runs safety algorithm to check safe state
- */
-
 public class BankersAlgorithm {
 
-    // All registered account resources in the system
     private final Set<String> resources = new LinkedHashSet<>();
 
-    // Active process allocations: processId -> accounts it currently holds
     private final Map<String, Set<String>> allocation = new LinkedHashMap<>();
 
-    // Max claim per process: processId -> max accounts it will ever need
     private final Map<String, Set<String>> maxClaim = new LinkedHashMap<>();
 
-    // Register a new account as a system resource
     public synchronized void registerResource(String accountName) {
         resources.add(accountName);
     }
 
-    /**
-     * Checks if granting 'needed' accounts to 'processId' keeps system SAFE.
-     * 
-     * @return true = SAFE (allow transfer), false = UNSAFE (defer transfer)
-     */
     public synchronized boolean requestAndCheck(String processId, Set<String> needed) {
 
-        // Auto-register any accounts not yet known
         resources.addAll(needed);
 
         printHeader(processId, needed);
 
-        // Calculate available = all resources - all currently allocated
         Set<String> allocated = new HashSet<>();
         for (Set<String> alloc : allocation.values())
             allocated.addAll(alloc);
@@ -48,7 +29,6 @@ public class BankersAlgorithm {
 
         System.out.println("  Available Accounts : " + available);
 
-        // Print current active processes
         if (!allocation.isEmpty()) {
             System.out.println("  Active Processes   :");
             for (Map.Entry<String, Set<String>> e : allocation.entrySet()) {
@@ -58,14 +38,12 @@ public class BankersAlgorithm {
             System.out.println("  Active Processes   : none");
         }
 
-        // Can we even grant the request right now?
         if (!available.containsAll(needed)) {
             System.out.println("  Result             : UNSAFE - accounts not available (in use)");
             System.out.println();
             return false;
         }
 
-        // Tentatively allocate to this new process
         Map<String, Set<String>> tempAlloc = new LinkedHashMap<>(allocation);
         Map<String, Set<String>> tempMax = new LinkedHashMap<>(maxClaim);
         tempAlloc.put(processId, new HashSet<>(needed));
@@ -74,7 +52,6 @@ public class BankersAlgorithm {
         Set<String> tempAvailable = new LinkedHashSet<>(available);
         tempAvailable.removeAll(needed);
 
-        // Safety Algorithm
         List<String> safeSequence = new ArrayList<>();
         Set<String> finished = new LinkedHashSet<>();
         boolean progress = true;
@@ -85,7 +62,6 @@ public class BankersAlgorithm {
                 if (finished.contains(proc))
                     continue;
 
-                // Need = Max - Allocation
                 Set<String> need = new HashSet<>(tempMax.get(proc));
                 Set<String> procAlloc = tempAlloc.getOrDefault(proc, new HashSet<>());
                 need.removeAll(procAlloc);
@@ -113,7 +89,6 @@ public class BankersAlgorithm {
         return safe;
     }
 
-    // Release resources after process completes
     public synchronized void release(String processId) {
         Set<String> held = allocation.remove(processId);
         maxClaim.remove(processId);
@@ -122,7 +97,6 @@ public class BankersAlgorithm {
         }
     }
 
-    // Print header for safety check output
     private void printHeader(String processId, Set<String> needed) {
         System.out.println();
         System.out.println("  +--------------------------------------------------+");
@@ -133,16 +107,10 @@ public class BankersAlgorithm {
         System.out.println("  All Resources      : " + resources);
     }
 
-    // =========================================================================
-    // DEADLOCK DEMO -- default uses alice/bob/charlie
-    // =========================================================================
     public static void runDeadlockDemo() {
         runDeadlockDemo("alice", "bob", "charlie");
     }
 
-    // =========================================================================
-    // DEADLOCK DEMO -- live animated with real account names + pauses
-    // =========================================================================
     public static void runDeadlockDemo(String acc1, String acc2, String acc3) {
         try {
             String A1 = acc1.toUpperCase();
@@ -192,7 +160,6 @@ public class BankersAlgorithm {
             String t1id = "T1-" + acc1 + "->" + acc2;
             String t2id = "T2-" + acc2 + "->" + acc3;
 
-            // STEP 1
             System.out.println();
             System.out.println("  [T1] Requesting accounts [" + acc1 + ", " + acc2 + "]...");
             Thread.sleep(1200);
@@ -201,7 +168,6 @@ public class BankersAlgorithm {
             System.out.println("  [T1] Both locks granted. Executing " + acc1 + " --> " + acc2 + "...");
             Thread.sleep(1800);
 
-            // STEP 2
             System.out.println();
             System.out.println("  [T2] Requesting accounts [" + acc2 + ", " + acc3 + "]...");
             Thread.sleep(500);
@@ -218,13 +184,11 @@ public class BankersAlgorithm {
             }
             Thread.sleep(2000);
 
-            // STEP 3
             System.out.println();
             System.out.println("  [T1] Transfer " + acc1 + " --> " + acc2 + " DONE. Releasing locks.");
             ba.release(t1id);
             Thread.sleep(1200);
 
-            // STEP 4
             System.out.println();
             System.out.println("  [T2] Retrying request for [" + acc2 + ", " + acc3 + "]...");
             Thread.sleep(1200);
@@ -238,7 +202,6 @@ public class BankersAlgorithm {
             }
             Thread.sleep(1000);
 
-            // RESULT
             System.out.println();
             System.out.println("  ============================================================");
             System.out.println("  RESULT SUMMARY:");

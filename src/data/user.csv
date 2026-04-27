@@ -1,5 +1,5 @@
 name,balance,state
-bob,3800.0,COMMIT
+bob,3805.0,COMMIT
 proofuser,9999.0,COMMIT
-alice,4200.0,COMMIT
+alice,4195.0,COMMIT
 charlie,4100.0,COMMIT
